@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Image Gallery</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
+</head>
+<body>
+    <header>
+        <h1>✨ My Notes</h1>
+    </header>
+
+    <div class="gallery" id="gallery"></div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <div class="lightbox-close" id="lightbox-close">&times;</div>
+            <div class="lightbox-nav lightbox-prev" id="lightbox-prev">&#8249;</div>
+            <div class="lightbox-nav lightbox-next" id="lightbox-next">&#8250;</div>
+            <img id="lightbox-img" src="" alt="">
+            <div class="lightbox-info">
+                <div class="lightbox-title" id="lightbox-title"></div>
+                <div class="lightbox-description" id="lightbox-description"></div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy;2025 MRAN, All rights reserved</p>
+    </footer>
+    
+    <script>
+        const images = [
+            {
+                src: '/4.jpg',
+                title: 'Catatan Bab 1',
+                description: 'Sel dan Mikroskop',
+                category: 'bab1'
+            },
+            {
+                src: '/3.jpg',
+                title: 'Catatan Bab 1',
+                description: 'Bagian-Bagian Mikroskop',
+                category: 'bab1'
+            },
+            {
+                src: '/2.jpg',
+                title: 'Catatan Bab 1',
+                description: 'Bagian-Bagian Mikroskop',
+                category: 'bab1'
+            },
+            {
+                src: '/1.jpg',
+                title: 'Catatan Bab 1',
+                description: 'Struktur Sel',
+                category: 'bab1'
+            },
+        ];
+
+        let currentImageIndex = 0;
+        let filteredImages = images;
+
+        function generateGallery(imagesToShow = images) {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            
+            imagesToShow.forEach((image, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.dataset.index = index;
+                
+                galleryItem.innerHTML = `
+                    <img src="${image.src}" alt="${image.title}" loading="lazy">
+                    <div class="gallery-overlay">
+                        <div class="gallery-title">${image.title}</div>
+                        <div class="gallery-description">${image.description}</div>
+                    </div>
+                `;
+                
+                galleryItem.addEventListener('click', () => openLightbox(index, imagesToShow));
+                gallery.appendChild(galleryItem);
+            });
+        }
+
+        function openLightbox(index, imagesToShow) {
+            currentImageIndex = index;
+            filteredImages = imagesToShow;
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            const title = document.getElementById('lightbox-title');
+            const description = document.getElementById('lightbox-description');
+            
+            const currentImage = imagesToShow[index];
+            img.src = currentImage.src;
+            title.textContent = currentImage.title;
+            description.textContent = currentImage.description;
+            
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function navigateLightbox(direction) {
+            if (direction === 'next') {
+                currentImageIndex = (currentImageIndex + 1) % filteredImages.length;
+            } else {
+                currentImageIndex = (currentImageIndex - 1 + filteredImages.length) % filteredImages.length;
+            }
+            
+            const img = document.getElementById('lightbox-img');
+            const title = document.getElementById('lightbox-title');
+            const description = document.getElementById('lightbox-description');
+            
+            const currentImage = filteredImages[currentImageIndex];
+            img.src = currentImage.src;
+            title.textContent = currentImage.title;
+            description.textContent = currentImage.description;
+        }
+
+        document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+        document.getElementById('lightbox-prev').addEventListener('click', () => navigateLightbox('prev'));
+        document.getElementById('lightbox-next').addEventListener('click', () => navigateLightbox('next'));
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                switch(e.key) {
+                    case 'Escape': closeLightbox(); break;
+                    case 'ArrowLeft': navigateLightbox('prev'); break;
+                    case 'ArrowRight': navigateLightbox('next'); break;
+                }
+            }
+        });
+
+        generateGallery();
+    </script>
+</body>
+</html>
